@@ -1,0 +1,61 @@
+version: "3.9"
+services:
+  web_channel:
+    build: .
+    command: gunicorn --config=gunicorn.channel.conf.py
+    volumes:
+      - socket_data:/tmp/gunicorn/
+    restart: unless-stopped
+
+  web_app:
+    build: .
+    command: gunicorn --config=gunicorn.app.conf.py
+    volumes:
+      - static_data:/var/www/mysite/static/
+      - socket_data:/tmp/gunicorn/
+    restart: unless-stopped
+
+  nginx:
+     depends_on:
+       - web_app
+       - web_channel
+     build: nginx/
+     ports:
+       - 8888:80
+     volumes:
+       - static_data:/var/www/mysite/static/:ro
+       - socket_data:/tmp/gunicorn/
+     restart: unless-stopped
+
+  react:
+    build:
+      context: ./react_channel/
+      dockerfile: Dockerfile
+    container_name: react-container
+    ports:
+      - "3000:3000"
+    volumes:
+    - .:/usr/src/app/
+    depends_on:
+      - web_app
+      - web_channel
+  
+  redis:
+    image: redis
+    command: redis-server --requirepass mypassword
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+  celery_beat:
+    build: .
+    command: celery -A mysite worker --beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    restart: unless-stopped
+volumes:
+  static_data:
+  socket_data:
