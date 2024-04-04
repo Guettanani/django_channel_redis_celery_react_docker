@@ -800,7 +800,7 @@ function MyChart() {
           {/* Composant WebSocketComponent pour la communication en temps réel */}
           <WebSocketComponent
               // URL du WebSocket à connecter
-              url={'ws://localhost:8888/ws/sms/notification/'}
+              url={'ws://localhost:8880/ws/sms/notification/'}
               // Fonction de rappel pour traiter les données reçues du WebSocket
               onDataReceived={onDataReceived}
               // État de connexion du WebSocket (connecté ou déconnecté)

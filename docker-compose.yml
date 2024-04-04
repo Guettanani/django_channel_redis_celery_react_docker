@@ -21,7 +21,7 @@ services:
        - web_channel
      build: nginx/
      ports:
-       - 8888:80
+       - 8880:80
      volumes:
        - static_data:/var/www/mysite/static/:ro
        - socket_data:/tmp/gunicorn/
